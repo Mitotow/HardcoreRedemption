@@ -1,0 +1,4 @@
+name: HardcoreRedemption
+version: '${version}'
+main: fr.mitoto.hardcoreredemption.Main
+api-version: '1.20'
