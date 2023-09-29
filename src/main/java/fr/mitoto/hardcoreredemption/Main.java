@@ -1,7 +1,8 @@
 package fr.mitoto.hardcoreredemption;
 
+import fr.mitoto.hardcoreredemption.inventories.RedemptionInv;
 import fr.mitoto.hardcoreredemption.items.RedemptionTotem;
-import fr.mitoto.hardcoreredemption.listeners.Entities;
+import fr.mitoto.hardcoreredemption.listeners.EntitiesListener;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,14 +22,18 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        this.logger.info("<HardcoreRedemption> Enable");
-        pm.registerEvents(new Entities(), this);
+        this.logger.info("Ready !");
+
+        /* Adding Listeners */
+        pm.registerEvents(new EntitiesListener(), this);
+        pm.registerEvents(new RedemptionInv(), this);
+
         Bukkit.addRecipe(RedemptionTotem.getRecipe()); // Adding recipe of Redemption Totem
     }
 
     @Override
     public void onDisable() {
-        this.logger.info("<HardcoreRedemption> Disable");
+        this.logger.info("Disabled");
     }
 
     public static Main getPlugin() {

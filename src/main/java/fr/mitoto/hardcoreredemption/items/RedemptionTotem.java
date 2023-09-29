@@ -26,11 +26,18 @@ public class RedemptionTotem extends ItemStack {
 
     public static ShapedRecipe getRecipe() {
         ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(Main.getPlugin(), key), new RedemptionTotem());
-        recipe.shape("ABA", "BCB", "ABA");
 
+        /* Recipe
+        *  SOUL_SAND  : GOLD_BLOCK            : SOUL_SAND
+        *  GOLD_BLOCK : WITHER_SKELETON_SKULL : GOLD_BLOCK
+        *  SOUL_SAND  : TOTEM_OF_UNDYING      : SOUL_SAND
+        */
+
+        recipe.shape("ABA", "BCB", "ADA");
         recipe.setIngredient('A', Material.SOUL_SAND);
         recipe.setIngredient('B', Material.GOLD_BLOCK);
         recipe.setIngredient('C', Material.WITHER_SKELETON_SKULL);
+        recipe.setIngredient('D', Material.TOTEM_OF_UNDYING);
 
         return recipe;
     }
@@ -39,12 +46,8 @@ public class RedemptionTotem extends ItemStack {
         if(item.hasItemMeta()) {
             ItemMeta itemMeta = item.getItemMeta();
             if(itemMeta == null) return false;
-            return itemMeta.getPersistentDataContainer().has(new NamespacedKey(Main.getPlugin(), RedemptionTotem.getKey()), PersistentDataType.BYTE);
+            return itemMeta.getPersistentDataContainer().has(new NamespacedKey(Main.getPlugin(), key), PersistentDataType.BYTE);
         }
         return false;
-    }
-
-    public static String getKey() {
-        return key;
     }
 }
