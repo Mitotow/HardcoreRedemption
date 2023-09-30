@@ -9,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.profile.PlayerProfile;
 
@@ -76,6 +77,7 @@ public class RedemptionInv implements Listener {
         if(bannedPlayer == null) return;                                            // Banned Player not found
         BanList<PlayerProfile> banList = server.getBanList(BanList.Type.PROFILE);   // Get list of banned players
         banList.pardon(bannedPlayer.getPlayerProfile());                            // Unban banned player
+
         /* Broadcast a message to tell everyone that player is returned */
         server.broadcast(
                 ChatColor.GREEN
@@ -85,9 +87,20 @@ public class RedemptionInv implements Listener {
                 + ChatColor.AQUA
                 + player.getDisplayName()
         , Server.BROADCAST_CHANNEL_USERS);
+
         player.closeInventory();                                                    // Close inventory (to avoid update inventory problems)
-        for(Player p : server.getOnlinePlayers()) {
-            // Player sound of wither spawn for each player online
+
+        /* Remove Totem */
+        PlayerInventory pinv = player.getInventory();
+        int index = pinv.getHeldItemSlot();
+        ItemStack totem = pinv.getItem(index);
+        if(totem != null) {
+            pinv.remove(totem);
+        }
+
+        player.playEffect(EntityEffect.TOTEM_RESURRECT);                            // Play totem resurrect effect
+
+        for(Player p : server.getOnlinePlayers()) {                                 // Player sound of wither spawn for each player online
             p.playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN, 0.5f, 0f);
         }
     }

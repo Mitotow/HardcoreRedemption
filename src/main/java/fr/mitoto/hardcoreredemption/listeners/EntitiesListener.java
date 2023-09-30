@@ -4,7 +4,6 @@ import fr.mitoto.hardcoreredemption.Main;
 import fr.mitoto.hardcoreredemption.inventories.RedemptionInv;
 import fr.mitoto.hardcoreredemption.items.RedemptionTotem;
 import org.bukkit.ChatColor;
-import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -56,20 +55,7 @@ public class EntitiesListener implements Listener {
         ItemStack handItem = pInv.getItem(slot);
         if(handItem == null) return;
         if(RedemptionTotem.isRedemptionTotem(handItem)) {
-            p.openInventory(RedemptionInv.getInventory());                                              // FIXME: To remove, only used to debug !
+            p.openInventory(RedemptionInv.getInventory());
         }
-    }
-
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent e) {
-        Player p = e.getPlayer();
-        e.setJoinMessage(ChatColor.GOLD + p.getDisplayName() + ChatColor.WHITE + " joins the game !");
-        p.getInventory().addItem(new RedemptionTotem());                                                // FIXME: To remove, only used to debug !
-    }
-
-    @EventHandler
-    private void onPlayerQuit(PlayerQuitEvent e) {
-        Player p = e.getPlayer();
-        e.setQuitMessage(ChatColor.GOLD + p.getDisplayName() + ChatColor.WHITE + " quit the game !");
     }
 }
