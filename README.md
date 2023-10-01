@@ -4,9 +4,9 @@
 
 ## Features
 
-- Ban a player if he die
+- Ban a player if they die.
 
-- Revive (unBan) a player with the "RedemptionTotem"
+- Revive (unban) a player with the 'Redemption Totem'.
 
 ## Craft of RedemptionTotem
 
