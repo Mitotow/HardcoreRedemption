@@ -11,8 +11,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -55,7 +53,7 @@ public class EntitiesListener implements Listener {
         ItemStack handItem = pInv.getItem(slot);
         if(handItem == null) return;
         if(RedemptionTotem.isRedemptionTotem(handItem)) {
-            p.openInventory(RedemptionInv.getInventory());
+            p.openInventory(new RedemptionInv().getInventory());
         }
     }
 }

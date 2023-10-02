@@ -2,6 +2,7 @@ package fr.mitoto.hardcoreredemption.inventories;
 
 import fr.mitoto.hardcoreredemption.Main;
 import fr.mitoto.hardcoreredemption.items.Heads;
+import fr.mitoto.hardcoreredemption.items.RedemptionTotem;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,34 +16,39 @@ import org.bukkit.profile.PlayerProfile;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public class RedemptionInv implements Listener {
 
     private static Inventory inv = null;
+    private Inventory inventory;
 
-    public static Inventory getInventory() {
-        if(inv == null) inv = Bukkit.createInventory(null, 45, "Chose a player to forgive");
-        updateInv();
-        return inv;
+    public RedemptionInv() {
+        this.inventory = Bukkit.createInventory(null, 45, "Chose a player to forgive");
+        this.setBorder();
+        this.updateInv();
     }
 
-    public static void updateInv() {
-        if(inv == null) return;
-        inv.clear();
+    public Inventory getInventory() {
+        return this.inventory;
+    }
+
+    private void setBorder() {
         ItemStack borderItem = new ItemStack(Material.GREEN_STAINED_GLASS);
         boolean setItem;
         List<Integer> rBorder = List.of(17, 26, 35);
-        for(int i = 0; i<inv.getSize(); i++) {
-            setItem = (i <= 9 || i>= 36 || i%9 == 0 || rBorder.contains(i));
-            if(setItem) inv.setItem(i, borderItem);
+        for(int i = 0; i<this.inventory.getSize(); i++) {
+            setItem = (i <= 9 || i>= 36 || i%9 == 0 || (i-1)%9 == 0);
+            if(setItem) this.inventory.setItem(i, borderItem);
         }
-        Set<OfflinePlayer> bans = Main.getPlugin().getServer().getBannedPlayers();
-        for(OfflinePlayer player : bans) {
+    }
+
+    public void updateInv() {
+        this.inventory.remove(new ItemStack(Material.PLAYER_HEAD));
+        for(OfflinePlayer player : Main.getPlugin().getServer().getBannedPlayers()) {
             ItemStack head = Heads.getOfflinePlayerHead(player);
-            for(int i = 0; i<inv.getSize()-1; i++) {
-                if(inv.getItem(i) == null) {
-                    inv.setItem(i, head);
+            for(int i = 0; i<this.inventory.getSize()-1; i++) {
+                if(this.inventory.getItem(i) == null) {
+                    this.inventory.setItem(i, head);
                     break;
                 }
             }
@@ -51,7 +57,7 @@ public class RedemptionInv implements Listener {
 
     @EventHandler
     public void onInvClick(InventoryClickEvent e) {
-        if(!e.getInventory().equals(inv)) return;
+        if(!e.getInventory().equals(this.inventory)) return;
         e.setCancelled(true);
 
         ItemStack item = e.getCurrentItem();
@@ -94,8 +100,8 @@ public class RedemptionInv implements Listener {
         PlayerInventory pinv = player.getInventory();
         int index = pinv.getHeldItemSlot();
         ItemStack totem = pinv.getItem(index);
-        if(totem != null) {
-            pinv.remove(totem);
+        if(totem != null && RedemptionTotem.isRedemptionTotem(totem)) {
+            pinv.setItem(index, null);
         }
 
         player.playEffect(EntityEffect.TOTEM_RESURRECT);                            // Play totem resurrect effect

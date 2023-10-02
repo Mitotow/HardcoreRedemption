@@ -12,12 +12,12 @@ import java.util.logging.Logger;
 public final class Main extends JavaPlugin {
     private final Logger logger;
     private final PluginManager pm;
-    private static Main instance;
+    private static Main plugin;
 
     public Main() {
         this.logger = getLogger();
         this.pm = getServer().getPluginManager();
-        instance = this;
+        plugin = this;
     }
 
     @Override
@@ -37,6 +37,6 @@ public final class Main extends JavaPlugin {
     }
 
     public static Main getPlugin() {
-        return instance;
+        return plugin;
     }
 }
