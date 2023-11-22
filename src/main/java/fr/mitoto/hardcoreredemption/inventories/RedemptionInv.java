@@ -14,6 +14,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.profile.PlayerProfile;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,23 +25,19 @@ public class RedemptionInv implements Listener {
 
     public RedemptionInv() {
         this.inventory = Bukkit.createInventory(null, 45, INVNAME);
-
         this.setBorder();
-        this.updateInv();
     }
 
     public Inventory getInventory() {
+        this.updateInv();
         return this.inventory;
     }
 
     private void setBorder() {
         ItemStack borderItem = new ItemStack(Material.GREEN_STAINED_GLASS);
-        boolean setItem;
-        List<Integer> rBorder = List.of(17, 26, 35);
-        for(int i = 0; i<this.inventory.getSize(); i++) {
-            setItem = (i <= 9 || i>= 36 || i%9 == 0 || (i-1)%9 == 0);
-            if(setItem) this.inventory.setItem(i, borderItem);
-        }
+        for(int i = 0; i<this.inventory.getSize(); i++)
+            if(i <= 8 || (i >= 36 && i <= 44) || i % 9 == 0 || (i + 1) % 9 == 0)
+                this.inventory.setItem(i, borderItem);
     }
 
     public void updateInv() {
