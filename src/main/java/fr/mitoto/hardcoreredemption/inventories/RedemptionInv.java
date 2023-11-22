@@ -19,11 +19,12 @@ import java.util.Objects;
 
 public class RedemptionInv implements Listener {
 
-    private static Inventory inv = null;
-    private Inventory inventory;
+    private final Inventory inventory;
+    private final String INVNAME = "RedemptionTotem";
 
     public RedemptionInv() {
-        this.inventory = Bukkit.createInventory(null, 45, "Chose a player to forgive");
+        this.inventory = Bukkit.createInventory(null, 45, INVNAME);
+
         this.setBorder();
         this.updateInv();
     }
@@ -57,7 +58,7 @@ public class RedemptionInv implements Listener {
 
     @EventHandler
     public void onInvClick(InventoryClickEvent e) {
-        if(!e.getInventory().equals(this.inventory)) return;
+        if(!e.getView().getTitle().equals(this.INVNAME)) return;
         e.setCancelled(true);
 
         ItemStack item = e.getCurrentItem();

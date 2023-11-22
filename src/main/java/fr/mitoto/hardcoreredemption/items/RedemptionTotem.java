@@ -10,6 +10,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Collections;
+import java.util.List;
 
 public class RedemptionTotem extends ItemStack {
     private static final String key = "redemption_totem";
@@ -19,7 +20,7 @@ public class RedemptionTotem extends ItemStack {
         ItemMeta itemMeta = getItemMeta();
         if(itemMeta == null) return;
         itemMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "RedemptionTotem");
-        itemMeta.setLore(Collections.singletonList(ChatColor.GRAY + "The Redemption Totem is a sacred item used within a special structure to revive a fallen player."));
+        itemMeta.setLore(Collections.singletonList(ChatColor.GRAY + "The Redemption Totem is a sacred item used to revive a fallen player"));
         itemMeta.getPersistentDataContainer().set(new NamespacedKey(Main.getPlugin(), key), PersistentDataType.BYTE, (byte) 1);
         setItemMeta(itemMeta);
     }
@@ -28,16 +29,15 @@ public class RedemptionTotem extends ItemStack {
         ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(Main.getPlugin(), key), new RedemptionTotem());
 
         /* Recipe
-        *  SOUL_SAND  : GOLD_BLOCK            : SOUL_SAND
-        *  GOLD_BLOCK : WITHER_SKELETON_SKULL : GOLD_BLOCK
-        *  SOUL_SAND  : TOTEM_OF_UNDYING      : SOUL_SAND
+        *  SOUL_SAND  : GOLD_BLOCK      : SOUL_SAND
+        *  GOLD_BLOCK : DIAMOND_BLOCK   : GOLD_BLOCK
+        *  SOUL_SAND  : GOLD_BLOCK      : SOUL_SAND
         */
 
-        recipe.shape("ABA", "BCB", "ADA");
+        recipe.shape("ABA", "BCB", "ABA");
         recipe.setIngredient('A', Material.SOUL_SAND);
         recipe.setIngredient('B', Material.GOLD_BLOCK);
-        recipe.setIngredient('C', Material.WITHER_SKELETON_SKULL);
-        recipe.setIngredient('D', Material.TOTEM_OF_UNDYING);
+        recipe.setIngredient('C', Material.DIAMOND_BLOCK);
 
         return recipe;
     }
