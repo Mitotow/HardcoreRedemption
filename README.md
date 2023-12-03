@@ -1,7 +1,5 @@
 # HardcoreRedemption | Beginner-friendly hardcore multiplayer mode
 
-# 
-
 ## Features
 
 - Ban a player upon death.
