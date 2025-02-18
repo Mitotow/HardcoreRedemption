@@ -8,4 +8,4 @@
 
 ## Craft of RedemptionTotem
 
-![Craft](./readme:image/crafting-grid.png)
+![Craft](./readme_image/crafting-grid.png)
