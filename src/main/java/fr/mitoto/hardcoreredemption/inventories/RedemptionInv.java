@@ -2,6 +2,7 @@ package fr.mitoto.hardcoreredemption.inventories;
 
 import fr.mitoto.hardcoreredemption.Main;
 import fr.mitoto.hardcoreredemption.configs.Constants;
+import fr.mitoto.hardcoreredemption.configs.Messages;
 import fr.mitoto.hardcoreredemption.items.Heads;
 import fr.mitoto.hardcoreredemption.items.RedemptionTotem;
 import fr.mitoto.hardcoreredemption.utils.BanUtils;
@@ -66,16 +67,10 @@ public class RedemptionInv implements Listener {
         boolean isUnbanned = BanUtils.findAndUnbanPlayer(expectedName);
         if (!isUnbanned) return;
 
-        // TODO: Messages will be reworked by issue #4
         // Broadcast a message to tell everyone that player is returned
         server.broadcast(
-                ChatColor.GREEN
-                + expectedName
-                + ChatColor.WHITE
-                + " has been revived by "
-                + ChatColor.AQUA
-                + player.getDisplayName()
-        , Server.BROADCAST_CHANNEL_USERS);
+                String.format(Messages.REVIVE_MESSAGE, expectedName, player.getDisplayName()),
+                Server.BROADCAST_CHANNEL_USERS);
 
         // Close inventory (to avoid update inventory problems)
         player.closeInventory();

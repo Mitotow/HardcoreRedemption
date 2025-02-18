@@ -1,5 +1,6 @@
 package fr.mitoto.hardcoreredemption;
 
+import fr.mitoto.hardcoreredemption.configs.Messages;
 import fr.mitoto.hardcoreredemption.inventories.RedemptionInv;
 import fr.mitoto.hardcoreredemption.items.RedemptionTotem;
 import fr.mitoto.hardcoreredemption.listeners.EntitiesListener;
@@ -22,7 +23,7 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        this.logger.info("Ready !");
+        this.logger.info(Messages.ON_ENABLE_MESSAGE);
 
         this.registerListeners();
         this.registerRecipes();
@@ -30,7 +31,7 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        this.logger.info("Disabled");
+        this.logger.info(Messages.ON_DISABLE_MESSAGE);
     }
 
     /** Registers all event listeners for the plugin. */

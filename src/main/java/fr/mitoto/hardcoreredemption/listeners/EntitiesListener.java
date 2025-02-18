@@ -2,6 +2,7 @@ package fr.mitoto.hardcoreredemption.listeners;
 
 import fr.mitoto.hardcoreredemption.Main;
 import fr.mitoto.hardcoreredemption.configs.Constants;
+import fr.mitoto.hardcoreredemption.configs.Messages;
 import fr.mitoto.hardcoreredemption.inventories.RedemptionInv;
 import fr.mitoto.hardcoreredemption.items.RedemptionTotem;
 import org.bukkit.ChatColor;
@@ -42,9 +43,8 @@ public class EntitiesListener implements Listener {
         e.getDrops().clear();
         p.getInventory().clear();
 
-        // TODO: Messages will be reworked by issue #4
-        e.setDeathMessage(ChatColor.RED + p.getDisplayName() + ChatColor.WHITE + " is dead ...");
-        p.ban("DEAD: You are dead, maybe someone will help you ...", (Date) null, p.getName(), true);
+        e.setDeathMessage(String.format(Messages.DEATH_MESSAGE, p.getDisplayName()));
+        p.ban(Messages.BAN_MESSAGE, (Date) null, p.getName(), true);
 
         // TODO: Sound will be reworked by issue #6
         for(Player op : Main.getPlugin().getServer().getOnlinePlayers()) {
