@@ -1,6 +1,7 @@
 package fr.mitoto.hardcoreredemption.items;
 
 import fr.mitoto.hardcoreredemption.Main;
+import fr.mitoto.hardcoreredemption.configs.Constants;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -10,29 +11,22 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Collections;
-import java.util.List;
 
 public class RedemptionTotem extends ItemStack {
-    private static final String key = "redemption_totem";
+    private static final NamespacedKey namespacedKey = new NamespacedKey(Main.getPlugin(), Constants.REDEMPTION_TOTEM_KEY);
 
     public RedemptionTotem() {
         super(Material.TOTEM_OF_UNDYING);
         ItemMeta itemMeta = getItemMeta();
         if(itemMeta == null) return;
-        itemMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "RedemptionTotem");
-        itemMeta.setLore(Collections.singletonList(ChatColor.GRAY + "The Redemption Totem is a sacred item used to revive a fallen player"));
-        itemMeta.getPersistentDataContainer().set(new NamespacedKey(Main.getPlugin(), key), PersistentDataType.BYTE, (byte) 1);
+        itemMeta.setDisplayName(ChatColor.LIGHT_PURPLE + Constants.REDEMPTION_TOTEM_TITLE);
+        itemMeta.setLore(Collections.singletonList(ChatColor.GRAY + Constants.REDEMPTION_TOTEM_LORE));
+        itemMeta.getPersistentDataContainer().set(namespacedKey, PersistentDataType.BYTE, (byte) 1);
         setItemMeta(itemMeta);
     }
 
     public static ShapedRecipe getRecipe() {
-        ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(Main.getPlugin(), key), new RedemptionTotem());
-
-        /* Recipe
-        *  SOUL_SAND  : GOLD_BLOCK      : SOUL_SAND
-        *  GOLD_BLOCK : DIAMOND_BLOCK   : GOLD_BLOCK
-        *  SOUL_SAND  : GOLD_BLOCK      : SOUL_SAND
-        */
+        ShapedRecipe recipe = new ShapedRecipe(namespacedKey, new RedemptionTotem());
 
         recipe.shape("ABA", "BCB", "ABA");
         recipe.setIngredient('A', Material.SOUL_SAND);
@@ -45,8 +39,9 @@ public class RedemptionTotem extends ItemStack {
     public static boolean isRedemptionTotem(ItemStack item) {
         if(item.hasItemMeta()) {
             ItemMeta itemMeta = item.getItemMeta();
+
             if(itemMeta == null) return false;
-            return itemMeta.getPersistentDataContainer().has(new NamespacedKey(Main.getPlugin(), key), PersistentDataType.BYTE);
+            return itemMeta.getPersistentDataContainer().has(namespacedKey, PersistentDataType.BYTE);
         }
         return false;
     }

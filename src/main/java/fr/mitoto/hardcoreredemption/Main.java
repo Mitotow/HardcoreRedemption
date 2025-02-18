@@ -24,16 +24,24 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         this.logger.info("Ready !");
 
-        /* Adding Listeners */
-        pm.registerEvents(new EntitiesListener(), this);
-        pm.registerEvents(new RedemptionInv(), this);
-
-        Bukkit.addRecipe(RedemptionTotem.getRecipe()); // Adding recipe of Redemption Totem
+        this.registerListeners();
+        this.registerRecipes();
     }
 
     @Override
     public void onDisable() {
         this.logger.info("Disabled");
+    }
+
+    /** Registers all event listeners for the plugin. */
+    private void registerListeners() {
+        pm.registerEvents(new EntitiesListener(), this);
+        pm.registerEvents(new RedemptionInv(), this);
+    }
+
+    /** Registers all custom crafting recipes for the plugin. */
+    private void registerRecipes() {
+        Bukkit.addRecipe(RedemptionTotem.getRecipe());
     }
 
     public static Main getPlugin() {
