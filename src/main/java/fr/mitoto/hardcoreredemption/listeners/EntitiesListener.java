@@ -5,7 +5,7 @@ import fr.mitoto.hardcoreredemption.configs.Constants;
 import fr.mitoto.hardcoreredemption.configs.Messages;
 import fr.mitoto.hardcoreredemption.inventories.RedemptionInv;
 import fr.mitoto.hardcoreredemption.items.RedemptionTotem;
-import org.bukkit.ChatColor;
+import fr.mitoto.hardcoreredemption.utils.BlacklistManager;
 import org.bukkit.Sound;
 import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
@@ -19,7 +19,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import java.util.Date;
 
 public class EntitiesListener implements Listener {
 
@@ -29,27 +28,29 @@ public class EntitiesListener implements Listener {
      */
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e) {
-        Player p = e.getEntity();
-        int deathCount = p.getStatistic(Statistic.DEATHS)+1;
+        Player player = e.getEntity();
+        int deathCount = player.getStatistic(Statistic.DEATHS)+1;
         if(deathCount%Constants.MAX_DEATHS != 0) return;
 
-        // Fix error when player get banned on death, doesn't update his death count
-        p.setStatistic(Statistic.DEATHS, deathCount);
+        // Fix error when player's death count was not updated
+        player.setStatistic(Statistic.DEATHS, deathCount);
 
         // Clear everything from the player when dying
         e.setKeepLevel(false);
         e.setDroppedExp(0);
         e.setKeepInventory(false);
         e.getDrops().clear();
-        p.getInventory().clear();
+        player.getInventory().clear();
 
-        e.setDeathMessage(String.format(Messages.DEATH_MESSAGE, p.getDisplayName()));
-        p.ban(Messages.BAN_MESSAGE, (Date) null, p.getName(), true);
+        // Manage player death and add the player to the blacklist
+        e.setDeathMessage(String.format(Messages.DEATH_MESSAGE, player.getDisplayName()));
+        BlacklistManager.addPlayerToBlacklist(player.getUniqueId());
+        player.kickPlayer(Messages.KICK_MESSAGE);
 
         // TODO: Sound will be reworked by issue #6
         for(Player op : Main.getPlugin().getServer().getOnlinePlayers()) {
             // Player sound of wither death for each player online
-            op.playSound(p.getLocation(), Sound.ENTITY_WITHER_DEATH, 0.5f, 0f);
+            op.playSound(player.getLocation(), Sound.ENTITY_WITHER_DEATH, 0.5f, 0f);
         }
     }
 

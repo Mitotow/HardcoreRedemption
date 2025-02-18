@@ -4,6 +4,7 @@ import fr.mitoto.hardcoreredemption.configs.Messages;
 import fr.mitoto.hardcoreredemption.inventories.RedemptionInv;
 import fr.mitoto.hardcoreredemption.items.RedemptionTotem;
 import fr.mitoto.hardcoreredemption.listeners.EntitiesListener;
+import fr.mitoto.hardcoreredemption.utils.BlacklistManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -23,6 +24,8 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        BlacklistManager.loadData();
+
         this.logger.info(Messages.ON_ENABLE_MESSAGE);
 
         this.registerListeners();
@@ -31,6 +34,8 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        BlacklistManager.saveData();
+
         this.logger.info(Messages.ON_DISABLE_MESSAGE);
     }
 

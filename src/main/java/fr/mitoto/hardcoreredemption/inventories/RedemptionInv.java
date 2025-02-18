@@ -5,7 +5,7 @@ import fr.mitoto.hardcoreredemption.configs.Constants;
 import fr.mitoto.hardcoreredemption.configs.Messages;
 import fr.mitoto.hardcoreredemption.items.Heads;
 import fr.mitoto.hardcoreredemption.items.RedemptionTotem;
-import fr.mitoto.hardcoreredemption.utils.BanUtils;
+import fr.mitoto.hardcoreredemption.utils.BlacklistManager;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,6 +15,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.Objects;
 
 public class RedemptionInv implements Listener {
     public static Inventory createInventory() {
@@ -46,7 +48,13 @@ public class RedemptionInv implements Listener {
 
     private static void updateInventory(Inventory inventory) {
         inventory.remove(new ItemStack(Material.PLAYER_HEAD));
-        Main.getPlugin().getServer().getBannedPlayers().forEach(player -> placeHeadInInventory(inventory, player));
+        Server server = Main.getPlugin().getServer();
+        BlacklistManager.getBlacklist().forEach(uuid -> {
+            Player player = server.getPlayer(uuid);
+            if (player != null)
+                placeHeadInInventory(inventory, player);
+            else Bukkit.getLogger().warning("Player " + uuid + " not found");
+        });
     }
 
     @EventHandler
@@ -64,12 +72,18 @@ public class RedemptionInv implements Listener {
         Player player = (Player) e.getWhoClicked();
         Server server = Main.getPlugin().getServer();
 
-        boolean isUnbanned = BanUtils.findAndUnbanPlayer(expectedName);
-        if (!isUnbanned) return;
+        // Remove blacklisted player from the blacklist
+        Player blacklistedPlayer = server.getPlayer(expectedName);
+        if (blacklistedPlayer == null || !BlacklistManager.isBlacklisted(blacklistedPlayer.getUniqueId())) {
+            updateInventory(Objects.requireNonNull(e.getClickedInventory()));
+            e.setCancelled(true);
+            return;
+        }
+        BlacklistManager.removePlayerFromBlacklist(blacklistedPlayer.getUniqueId());
 
         // Broadcast a message to tell everyone that player is returned
         server.broadcast(
-                String.format(Messages.REVIVE_MESSAGE, expectedName, player.getDisplayName()),
+                String.format(Messages.REVIVE_MESSAGE, blacklistedPlayer.getDisplayName(), player.getDisplayName()),
                 Server.BROADCAST_CHANNEL_USERS);
 
         // Close inventory (to avoid update inventory problems)
