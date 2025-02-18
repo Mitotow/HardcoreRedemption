@@ -1,9 +1,11 @@
 package fr.mitoto.hardcoreredemption.listeners;
 
 import fr.mitoto.hardcoreredemption.Main;
+import fr.mitoto.hardcoreredemption.configs.Constants;
+import fr.mitoto.hardcoreredemption.configs.Messages;
 import fr.mitoto.hardcoreredemption.inventories.RedemptionInv;
 import fr.mitoto.hardcoreredemption.items.RedemptionTotem;
-import org.bukkit.ChatColor;
+import fr.mitoto.hardcoreredemption.utils.BlacklistManager;
 import org.bukkit.Sound;
 import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
@@ -12,14 +14,23 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import java.util.Date;
 
 public class EntitiesListener implements Listener {
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        Player player = e.getPlayer();
+        if (BlacklistManager.isBlacklisted(player.getUniqueId())) {
+            player.kickPlayer(Messages.KICK_MESSAGE);
+            e.setJoinMessage(null);
+        }
+    }
 
     /*--            onPlayerDeath event                --
      * This handler is the main handler of the plugin
@@ -27,20 +38,29 @@ public class EntitiesListener implements Listener {
      */
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e) {
-        Player p = e.getEntity();
-        int deathCount = p.getStatistic(Statistic.DEATHS)+1;
-        if(deathCount%3!=0) return; // Player will be banned every 3 deaths
-        p.setStatistic(Statistic.DEATHS, deathCount); // Fix error when player get banned on death, doesn't update his death count
-        e.setDroppedExp(0);     // No levels drop
-        e.setKeepLevel(false);  // Disable keep levels
-        e.setKeepInventory(false); // Disable keep inventory
-        e.getDrops().clear();   // Clear player drops
-        p.getInventory().clear(); // Clear player inventory
-        e.setDeathMessage(ChatColor.RED + p.getDisplayName() + ChatColor.WHITE + " is dead ...");
-        p.ban("DEAD: You are dead, maybe someone will help you ...", (Date) null, p.getName(), true);
+        Player player = e.getEntity();
+        int deathCount = player.getStatistic(Statistic.DEATHS)+1;
+        if(deathCount%Constants.MAX_DEATHS != 0) return;
+
+        // Fix error when player's death count was not updated
+        player.setStatistic(Statistic.DEATHS, deathCount);
+
+        // Clear everything from the player when dying
+        e.setKeepLevel(false);
+        e.setDroppedExp(0);
+        e.setKeepInventory(false);
+        e.getDrops().clear();
+        player.getInventory().clear();
+
+        // Manage player death and add the player to the blacklist
+        e.setDeathMessage(String.format(Messages.DEATH_MESSAGE, player.getDisplayName()));
+        BlacklistManager.addPlayerToBlacklist(player.getUniqueId());
+        player.kickPlayer(Messages.KICK_MESSAGE);
+
+        // TODO: Sound will be reworked by issue #6
         for(Player op : Main.getPlugin().getServer().getOnlinePlayers()) {
             // Player sound of wither death for each player online
-            op.playSound(p.getLocation(), Sound.ENTITY_WITHER_DEATH, 0.5f, 0f);
+            op.playSound(player.getLocation(), Sound.ENTITY_WITHER_DEATH, 0.5f, 0f);
         }
     }
 
@@ -51,12 +71,14 @@ public class EntitiesListener implements Listener {
      */
     @EventHandler
     public void onEntityResurrect(EntityResurrectEvent e) {
-        /* Avoid Totem_Of_Undying effect when holding RedemptionTotem */
+        // Avoid Totem_Of_Undying effect when holding RedemptionTotem
         if(e.getEntity() instanceof Player p) {
             EquipmentSlot hand = e.getHand();
             if(hand == null) return;
+
             ItemStack item = p.getInventory().getItem(hand);
             if(item == null) return;
+
             e.setCancelled(RedemptionTotem.isRedemptionTotem(item));
         }
     }
@@ -72,10 +94,12 @@ public class EntitiesListener implements Listener {
         PlayerInventory pInv = p.getInventory();
         EquipmentSlot slot = e.getHand();
         if(slot == null) return;
+
         ItemStack handItem = pInv.getItem(slot);
         if(handItem == null) return;
+
         if(RedemptionTotem.isRedemptionTotem(handItem)) {
-            p.openInventory(new RedemptionInv().getInventory());
+            p.openInventory(RedemptionInv.createInventory());
         }
     }
 

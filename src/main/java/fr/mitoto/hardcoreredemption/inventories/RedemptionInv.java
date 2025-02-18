@@ -1,8 +1,11 @@
 package fr.mitoto.hardcoreredemption.inventories;
 
 import fr.mitoto.hardcoreredemption.Main;
+import fr.mitoto.hardcoreredemption.configs.Constants;
+import fr.mitoto.hardcoreredemption.configs.Messages;
 import fr.mitoto.hardcoreredemption.items.Heads;
 import fr.mitoto.hardcoreredemption.items.RedemptionTotem;
+import fr.mitoto.hardcoreredemption.utils.BlacklistManager;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,50 +15,51 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.profile.PlayerProfile;
 
-import javax.annotation.Nullable;
-import java.util.List;
 import java.util.Objects;
 
 public class RedemptionInv implements Listener {
+    public static Inventory createInventory() {
+        Inventory inventory = Bukkit.createInventory(null, 45, Constants.REDEMPTION_INVENTORY_TITLE);
+        setInventoryBorders(inventory);
+        updateInventory(inventory);
 
-    private final Inventory inventory;
-    private final String INVNAME = "RedemptionTotem";
-
-    public RedemptionInv() {
-        this.inventory = Bukkit.createInventory(null, 45, INVNAME);
-        this.setBorder();
+        return inventory;
     }
 
-    public Inventory getInventory() {
-        this.updateInv();
-        return this.inventory;
-    }
-
-    private void setBorder() {
+    private static void setInventoryBorders(Inventory inventory) {
         ItemStack borderItem = new ItemStack(Material.GREEN_STAINED_GLASS);
-        for(int i = 0; i<this.inventory.getSize(); i++)
-            if(i <= 8 || (i >= 36 && i <= 44) || i % 9 == 0 || (i + 1) % 9 == 0)
-                this.inventory.setItem(i, borderItem);
-    }
-
-    public void updateInv() {
-        this.inventory.remove(new ItemStack(Material.PLAYER_HEAD));
-        for(OfflinePlayer player : Main.getPlugin().getServer().getBannedPlayers()) {
-            ItemStack head = Heads.getOfflinePlayerHead(player);
-            for(int i = 0; i<this.inventory.getSize()-1; i++) {
-                if(this.inventory.getItem(i) == null) {
-                    this.inventory.setItem(i, head);
-                    break;
-                }
+        for(int i = 0; i<inventory.getSize(); i++) {
+            if(i <= 8 || (i >= 36 && i <= 44) || i % 9 == 0 || (i + 1) % 9 == 0) {
+                inventory.setItem(i, borderItem);
             }
         }
     }
 
+    private static void placeHeadInInventory(Inventory inventory, OfflinePlayer player) {
+        ItemStack head = Heads.getOfflinePlayerHead(player);
+        for(int i = 0; i<inventory.getSize()-1; i++) {
+            if(inventory.getItem(i) == null) {
+                inventory.setItem(i, head);
+                break;
+            }
+        }
+    }
+
+    private static void updateInventory(Inventory inventory) {
+        inventory.remove(new ItemStack(Material.PLAYER_HEAD));
+        Server server = Main.getPlugin().getServer();
+        BlacklistManager.getBlacklist().forEach(uuid -> {
+            Player player = server.getPlayer(uuid);
+            if (player != null)
+                placeHeadInInventory(inventory, player);
+            else Bukkit.getLogger().warning("Player " + uuid + " not found");
+        });
+    }
+
     @EventHandler
     public void onInvClick(InventoryClickEvent e) {
-        if(!e.getView().getTitle().equals(this.INVNAME)) return;
+        if(!e.getView().getTitle().equals(Constants.REDEMPTION_INVENTORY_TITLE)) return;
         e.setCancelled(true);
 
         ItemStack item = e.getCurrentItem();
@@ -64,49 +68,41 @@ public class RedemptionInv implements Listener {
         ItemMeta itemMeta = item.getItemMeta();
         if(itemMeta == null) return;
 
-        String expectedName = ChatColor.stripColor(itemMeta.getDisplayName());  // Get expected Player Name to found
+        String expectedName = ChatColor.stripColor(itemMeta.getDisplayName());
         Player player = (Player) e.getWhoClicked();
         Server server = Main.getPlugin().getServer();
 
-        OfflinePlayer bannedPlayer = null;
-        for(OfflinePlayer ofPlayer : server.getBannedPlayers()) {
-            if(!ofPlayer.isBanned()) continue; // Player is not ban;
-            if(Objects.equals(ofPlayer.getName(), expectedName)) {
-                // Banned player found
-                bannedPlayer = ofPlayer;
-                break;
-            }
+        // Remove blacklisted player from the blacklist
+        Player blacklistedPlayer = server.getPlayer(expectedName);
+        if (blacklistedPlayer == null || !BlacklistManager.isBlacklisted(blacklistedPlayer.getUniqueId())) {
+            updateInventory(Objects.requireNonNull(e.getClickedInventory()));
+            e.setCancelled(true);
+            return;
         }
+        BlacklistManager.removePlayerFromBlacklist(blacklistedPlayer.getUniqueId());
 
-        if(bannedPlayer == null) return;                                            // Banned Player not found
-        BanList<PlayerProfile> banList = server.getBanList(BanList.Type.PROFILE);   // Get list of banned players
-        banList.pardon(bannedPlayer.getPlayerProfile());                            // Unban banned player
-
-        /* Broadcast a message to tell everyone that player is returned */
+        // Broadcast a message to tell everyone that player is returned
         server.broadcast(
-                ChatColor.GREEN
-                + bannedPlayer.getName()
-                + ChatColor.WHITE
-                + " has been revived by "
-                + ChatColor.AQUA
-                + player.getDisplayName()
-        , Server.BROADCAST_CHANNEL_USERS);
+                String.format(Messages.REVIVE_MESSAGE, blacklistedPlayer.getDisplayName(), player.getDisplayName()),
+                Server.BROADCAST_CHANNEL_USERS);
 
-        player.closeInventory();                                                    // Close inventory (to avoid update inventory problems)
+        // Close inventory (to avoid update inventory problems)
+        player.closeInventory();
 
-        /* Remove Totem */
-        PlayerInventory pinv = player.getInventory();
-        int index = pinv.getHeldItemSlot();
-        ItemStack totem = pinv.getItem(index);
+        // Remove totem from player's inventory
+        PlayerInventory playerInventory = player.getInventory();
+        int index = playerInventory.getHeldItemSlot();
+        ItemStack totem = playerInventory.getItem(index);
         if(totem != null && RedemptionTotem.isRedemptionTotem(totem)) {
-            pinv.setItem(index, null);
+            playerInventory.setItem(index, null);
         }
 
-        player.playEffect(EntityEffect.TOTEM_RESURRECT);                            // Play totem resurrect effect
+        // Play totem resurrect effect
+        player.playEffect(EntityEffect.TOTEM_RESURRECT);
 
-        for(Player p : server.getOnlinePlayers()) {                                 // Player sound of wither spawn for each player online
-            p.playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN, 0.5f, 0f);
-        }
+        // TODO: Sound will be reworked by issue #6
+        // Player sound of wither spawn for each player online
+        server.getOnlinePlayers().forEach(p -> p.playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN, 0.5f, 0f));
     }
 
 }
