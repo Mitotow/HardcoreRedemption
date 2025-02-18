@@ -14,6 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -21,6 +22,15 @@ import org.bukkit.inventory.PlayerInventory;
 
 
 public class EntitiesListener implements Listener {
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        Player player = e.getPlayer();
+        if (BlacklistManager.isBlacklisted(player.getUniqueId())) {
+            player.kickPlayer(Messages.KICK_MESSAGE);
+            e.setJoinMessage(null);
+        }
+    }
 
     /*--            onPlayerDeath event                --
      * This handler is the main handler of the plugin
