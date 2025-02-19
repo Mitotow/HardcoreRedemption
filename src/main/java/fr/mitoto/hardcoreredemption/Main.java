@@ -1,9 +1,9 @@
 package fr.mitoto.hardcoreredemption;
 
 import fr.mitoto.hardcoreredemption.configs.Messages;
-import fr.mitoto.hardcoreredemption.inventories.RedemptionInv;
 import fr.mitoto.hardcoreredemption.items.RedemptionTotem;
 import fr.mitoto.hardcoreredemption.listeners.EntitiesListener;
+import fr.mitoto.hardcoreredemption.listeners.RedemptionInventoryListener;
 import fr.mitoto.hardcoreredemption.utils.BlacklistManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
@@ -11,7 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Logger;
 
-public final class Main extends JavaPlugin {
+public class Main extends JavaPlugin {
     private final Logger logger;
     private final PluginManager pm;
     private static Main plugin;
@@ -26,10 +26,10 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         BlacklistManager.loadData();
 
-        this.logger.info(Messages.ON_ENABLE_MESSAGE);
-
         this.registerListeners();
         this.registerRecipes();
+
+        this.logger.info(Messages.ON_ENABLE_MESSAGE);
     }
 
     @Override
@@ -42,7 +42,7 @@ public final class Main extends JavaPlugin {
     /** Registers all event listeners for the plugin. */
     private void registerListeners() {
         pm.registerEvents(new EntitiesListener(), this);
-        pm.registerEvents(new RedemptionInv(), this);
+        pm.registerEvents(new RedemptionInventoryListener(), this);
     }
 
     /** Registers all custom crafting recipes for the plugin. */

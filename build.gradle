@@ -17,7 +17,7 @@ repositories {
         url = "https://oss.sonatype.org/content/groups/public/"
     }
     maven {
-        url = "https://repo.maven.apache.org/maven2"
+        url = "https://repo.papermc.io/repository/maven-public/"
     }
 }
 
@@ -25,6 +25,11 @@ dependencies {
     compileOnly "org.spigotmc:spigot-api:1.20.1-R0.1-SNAPSHOT"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "com.google.code.gson:gson:2.8.9"
+
+    testImplementation "com.github.seeseemelk:MockBukkit-v1.20:3.80.0"
+    testImplementation "org.junit.jupiter:junit-jupiter:5.11.4"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.11.4"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.11.4"
 }
 
 def targetJavaVersion = 17

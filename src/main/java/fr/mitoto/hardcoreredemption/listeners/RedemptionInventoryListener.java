@@ -1,9 +1,8 @@
-package fr.mitoto.hardcoreredemption.inventories;
+package fr.mitoto.hardcoreredemption.listeners;
 
 import fr.mitoto.hardcoreredemption.Main;
-import fr.mitoto.hardcoreredemption.configs.Constants;
 import fr.mitoto.hardcoreredemption.configs.Messages;
-import fr.mitoto.hardcoreredemption.items.Heads;
+import fr.mitoto.hardcoreredemption.inventories.RedemptionInventory;
 import fr.mitoto.hardcoreredemption.items.RedemptionTotem;
 import fr.mitoto.hardcoreredemption.utils.BlacklistManager;
 import org.bukkit.*;
@@ -16,54 +15,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Objects;
-
-public class RedemptionInv implements Listener {
-    public static Inventory createInventory() {
-        Inventory inventory = Bukkit.createInventory(null, 45, Constants.REDEMPTION_INVENTORY_TITLE);
-        setInventoryBorders(inventory);
-        updateInventory(inventory);
-
-        return inventory;
-    }
-
-    private static void setInventoryBorders(Inventory inventory) {
-        ItemStack borderItem = new ItemStack(Material.GREEN_STAINED_GLASS);
-        for(int i = 0; i<inventory.getSize(); i++) {
-            if(i <= 8 || (i >= 36 && i <= 44) || i % 9 == 0 || (i + 1) % 9 == 0) {
-                inventory.setItem(i, borderItem);
-            }
-        }
-    }
-
-    private static void placeHeadInInventory(Inventory inventory, OfflinePlayer player) {
-        ItemStack head = Heads.getOfflinePlayerHead(player);
-        for(int i = 0; i<inventory.getSize()-1; i++) {
-            if(inventory.getItem(i) == null) {
-                inventory.setItem(i, head);
-                break;
-            }
-        }
-    }
-
-    private static void updateInventory(Inventory inventory) {
-        inventory.remove(new ItemStack(Material.PLAYER_HEAD));
-        Server server = Main.getPlugin().getServer();
-        BlacklistManager.getBlacklist().forEach(uuid -> {
-            Player player = server.getPlayer(uuid);
-            if (player != null)
-                placeHeadInInventory(inventory, player);
-            else Bukkit.getLogger().warning("Player " + uuid + " not found");
-        });
-    }
-
+public class RedemptionInventoryListener implements Listener {
     @EventHandler
     public void onInvClick(InventoryClickEvent e) {
-        if(!e.getView().getTitle().equals(Constants.REDEMPTION_INVENTORY_TITLE)) return;
+        Inventory inventory = e.getClickedInventory();
+        if(!RedemptionInventory.isRedemptionInventory(inventory)) return;
         e.setCancelled(true);
 
         ItemStack item = e.getCurrentItem();
-        if(item==null || item.getType()!=Material.PLAYER_HEAD) return;
+        if(item==null || item.getType()!= Material.PLAYER_HEAD) return;
 
         ItemMeta itemMeta = item.getItemMeta();
         if(itemMeta == null) return;
@@ -75,7 +35,7 @@ public class RedemptionInv implements Listener {
         // Remove blacklisted player from the blacklist
         Player blacklistedPlayer = server.getPlayer(expectedName);
         if (blacklistedPlayer == null || !BlacklistManager.isBlacklisted(blacklistedPlayer.getUniqueId())) {
-            updateInventory(Objects.requireNonNull(e.getClickedInventory()));
+            RedemptionInventory.updateInventory(inventory);
             e.setCancelled(true);
             return;
         }
@@ -104,5 +64,4 @@ public class RedemptionInv implements Listener {
         // Player sound of wither spawn for each player online
         server.getOnlinePlayers().forEach(p -> p.playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN, 0.5f, 0f));
     }
-
 }
