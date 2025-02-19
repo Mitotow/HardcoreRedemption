@@ -3,7 +3,7 @@ package fr.mitoto.hardcoreredemption.listeners;
 import fr.mitoto.hardcoreredemption.Main;
 import fr.mitoto.hardcoreredemption.configs.Constants;
 import fr.mitoto.hardcoreredemption.configs.Messages;
-import fr.mitoto.hardcoreredemption.inventories.RedemptionInv;
+import fr.mitoto.hardcoreredemption.inventories.RedemptionInventory;
 import fr.mitoto.hardcoreredemption.items.RedemptionTotem;
 import fr.mitoto.hardcoreredemption.utils.BlacklistManager;
 import org.bukkit.Sound;
@@ -72,11 +72,11 @@ public class EntitiesListener implements Listener {
     @EventHandler
     public void onEntityResurrect(EntityResurrectEvent e) {
         // Avoid Totem_Of_Undying effect when holding RedemptionTotem
-        if(e.getEntity() instanceof Player p) {
+        if(e.getEntity() instanceof Player player) {
             EquipmentSlot hand = e.getHand();
             if(hand == null) return;
 
-            ItemStack item = p.getInventory().getItem(hand);
+            ItemStack item = player.getInventory().getItem(hand);
             if(item == null) return;
 
             e.setCancelled(RedemptionTotem.isRedemptionTotem(item));
@@ -90,8 +90,8 @@ public class EntitiesListener implements Listener {
     */
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
-        Player p = e.getPlayer();
-        PlayerInventory pInv = p.getInventory();
+        Player player = e.getPlayer();
+        PlayerInventory pInv = player.getInventory();
         EquipmentSlot slot = e.getHand();
         if(slot == null) return;
 
@@ -99,13 +99,13 @@ public class EntitiesListener implements Listener {
         if(handItem == null) return;
 
         if(RedemptionTotem.isRedemptionTotem(handItem)) {
-            p.openInventory(RedemptionInv.createInventory());
+            player.openInventory(RedemptionInventory.createInventory(player));
         }
     }
 
     @EventHandler
     public void onPlayerKick(PlayerKickEvent e) {
-        Player p = e.getPlayer();
-        if(p.isBanned() && e.getReason().startsWith("DEAD:")) e.setLeaveMessage("");
+        Player player = e.getPlayer();
+        if(player.isBanned() && e.getReason().startsWith("DEAD:")) e.setLeaveMessage("");
     }
 }
