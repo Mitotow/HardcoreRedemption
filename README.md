@@ -2,9 +2,9 @@
 
 ## Features
 
-- Ban a player upon death.
+- Blacklist a player upon death
 
-- Revive (unban) a player using the 'Redemption Totem'.
+- Revive (remove from the blacklist) a player using the 'Redemption Totem'.
 
 ## Craft of RedemptionTotem
 
