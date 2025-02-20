@@ -22,16 +22,23 @@ public class Main extends JavaPlugin {
         plugin = this;
     }
 
+    /**
+     * Called when the plugin is enabled.
+     * Loads blacklist data, registers event listeners, and registers crafting recipes.
+     */
     @Override
     public void onEnable() {
         BlacklistManager.loadData();
-
         this.registerListeners();
         this.registerRecipes();
 
         this.logger.info(Messages.ON_ENABLE_MESSAGE);
     }
 
+    /**
+     * Called when the plugin is disabled.
+     * Saves blacklist data before the server shuts down.
+     */
     @Override
     public void onDisable() {
         BlacklistManager.saveData();
@@ -39,17 +46,26 @@ public class Main extends JavaPlugin {
         this.logger.info(Messages.ON_DISABLE_MESSAGE);
     }
 
-    /** Registers all event listeners for the plugin. */
+    /**
+     * Registers the plugin's event listeners.
+     */
     private void registerListeners() {
         pm.registerEvents(new EntitiesListener(), this);
         pm.registerEvents(new RedemptionInventoryListener(), this);
     }
 
-    /** Registers all custom crafting recipes for the plugin. */
+    /**
+     * Registers the plugin's custom crafting recipes.
+     */
     private void registerRecipes() {
         Bukkit.addRecipe(RedemptionTotem.getRecipe());
     }
 
+    /**
+     * Returns the main instance of the plugin.
+     *
+     * @return The {@code Main} instance.
+     */
     public static Main getPlugin() {
         return plugin;
     }

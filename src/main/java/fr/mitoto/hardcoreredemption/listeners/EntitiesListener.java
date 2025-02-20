@@ -20,9 +20,17 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-
+/**
+ * Handles various player-related events such as deaths, resurrections, interactions, and joins.
+ * This class ensures the correct functionality of the hardcore redemption mechanics.
+ */
 public class EntitiesListener implements Listener {
-
+    /**
+     * Handles player join events.
+     * If a player is blacklisted, they are automatically kicked from the server.
+     *
+     * @param e The {@link PlayerJoinEvent} triggered when a player joins the server.
+     */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player player = e.getPlayer();
@@ -32,80 +40,93 @@ public class EntitiesListener implements Listener {
         }
     }
 
-    /*--            onPlayerDeath event                --
-     * This handler is the main handler of the plugin
-     * where players are banned for their deaths.
+    /**
+     * Handles player deaths and bans them when their death count reaches the configured threshold.
+     * - The player loses all inventory and experience upon death.
+     * - The player is blacklisted when reaching the max death limit.
+     * - A global death message is broadcasted.
+     * - All online players hear a wither death sound effect.
+     *
+     * @param e The {@link PlayerDeathEvent} triggered when a player dies.
      */
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e) {
         Player player = e.getEntity();
-        int deathCount = player.getStatistic(Statistic.DEATHS)+1;
-        if(deathCount%Constants.MAX_DEATHS != 0) return;
+        int deathCount = player.getStatistic(Statistic.DEATHS) + 1;
+        if (deathCount % Constants.MAX_DEATHS != 0) return;
 
-        // Fix error when player's death count was not updated
+        // Ensure the death count is correctly updated
         player.setStatistic(Statistic.DEATHS, deathCount);
 
-        // Clear everything from the player when dying
+        // Remove all player inventory and experience upon death
         e.setKeepLevel(false);
         e.setDroppedExp(0);
         e.setKeepInventory(false);
         e.getDrops().clear();
         player.getInventory().clear();
 
-        // Manage player death and add the player to the blacklist
+        // Blacklist the player and kick them from the server
         e.setDeathMessage(String.format(Messages.DEATH_MESSAGE, player.getDisplayName()));
         BlacklistManager.addPlayerToBlacklist(player.getUniqueId());
         player.kickPlayer(Messages.KICK_MESSAGE);
 
-        // TODO: Sound will be reworked by issue #6
-        for(Player op : Main.getPlugin().getServer().getOnlinePlayers()) {
-            // Player sound of wither death for each player online
+        // Play a global wither death sound effect for all online players
+        for (Player op : Main.getPlugin().getServer().getOnlinePlayers()) {
             op.playSound(player.getLocation(), Sound.ENTITY_WITHER_DEATH, 0.5f, 0f);
         }
     }
 
-    /*--            onEntityResurrect event            --
-     * This event is used to disable the resurrection
-     * effect when a totem of undying is used if a player
-     * is using a Redemption Totem.
+    /**
+     * Handles entity resurrection events to prevent the use of normal totems
+     * when a player is holding a {@link RedemptionTotem}.
+     *
+     * @param e The {@link EntityResurrectEvent} triggered when an entity attempts to resurrect.
      */
     @EventHandler
     public void onEntityResurrect(EntityResurrectEvent e) {
-        // Avoid Totem_Of_Undying effect when holding RedemptionTotem
-        if(e.getEntity() instanceof Player player) {
+        if (e.getEntity() instanceof Player player) {
             EquipmentSlot hand = e.getHand();
-            if(hand == null) return;
+            if (hand == null) return;
 
             ItemStack item = player.getInventory().getItem(hand);
-            if(item == null) return;
+            if (item == null) return;
 
             e.setCancelled(RedemptionTotem.isRedemptionTotem(item));
         }
     }
 
-    /*--            onPlayerInteract event            --
-    * This event is used to see if a player is using the
-    * Redemption Totem and open a custom inventory if
-    * he's holding a totem.
-    */
+    /**
+     * Handles player interactions to detect when they use a {@link RedemptionTotem}.
+     * If the player is holding a Redemption Totem, it opens the custom redemption inventory.
+     *
+     * @param e The {@link PlayerInteractEvent} triggered when a player interacts.
+     */
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
         Player player = e.getPlayer();
         PlayerInventory pInv = player.getInventory();
         EquipmentSlot slot = e.getHand();
-        if(slot == null) return;
+        if (slot == null) return;
 
         ItemStack handItem = pInv.getItem(slot);
-        if(handItem == null) return;
+        if (handItem == null) return;
 
-        if(RedemptionTotem.isRedemptionTotem(handItem)) {
+        if (RedemptionTotem.isRedemptionTotem(handItem)) {
             player.openInventory(RedemptionInventory.createInventory(player));
         }
     }
 
+    /**
+     * Handles player kick events.
+     * If a player is banned due to death, their leave message is suppressed.
+     *
+     * @param e The {@link PlayerKickEvent} triggered when a player is kicked.
+     */
     @EventHandler
     public void onPlayerKick(PlayerKickEvent e) {
         Player player = e.getPlayer();
-        if(player.isBanned() && e.getReason().startsWith("DEAD:")) e.setLeaveMessage("");
+        if (player.isBanned() && e.getReason().startsWith("DEAD:")) {
+            e.setLeaveMessage("");
+        }
     }
 }

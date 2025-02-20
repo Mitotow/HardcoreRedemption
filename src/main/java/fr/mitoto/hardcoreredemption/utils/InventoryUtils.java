@@ -8,7 +8,6 @@ import org.bukkit.inventory.ItemStack;
  * This class contains methods that help to manipulate and query items in an inventory.
  */
 public class InventoryUtils {
-
     /**
      * Finds the slot index of a specific item in an inventory.
      * The item is considered found if it is similar to the provided item (using the {@link ItemStack#isSimilar(ItemStack)} method).

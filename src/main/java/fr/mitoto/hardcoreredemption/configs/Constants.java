@@ -13,5 +13,6 @@ public class Constants {
     public final static String REDEMPTION_TOTEM_LORE = "The Redemption Totem is a sacred item used to revive a fallen player";
 
     // Redemption Inventory
-    public final static String REDEMPTION_INVENTORY_TITLE = "RedemptionTotem";
+    public final static String REDEMPTION_INVENTORY_TITLE = "RedemptionTotem - %d/%d";
+    public final static int MAX_HEADS_PER_INVENTORY = 21;
 }

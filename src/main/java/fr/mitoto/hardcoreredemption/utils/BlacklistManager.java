@@ -18,8 +18,11 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Manages a blacklist of players using UUIDs.
- * The blacklist is stored in a JSON file and persists between server restarts.
+ * Manages a blacklist of players by their UUIDs.
+ * <p>
+ * The blacklist is stored in a JSON file, allowing it to persist between server restarts.
+ * This class provides methods to add, remove, and check if a player is blacklisted.
+ * </p>
  */
 public class BlacklistManager {
     private static final HashSet<UUID> blacklist = new HashSet<>();
@@ -29,10 +32,9 @@ public class BlacklistManager {
     private static boolean inMemory = false;
 
     /**
-     * Creates the blacklist data file if it does not already exist.
+     * Creates the blacklist file if it does not already exist.
      * If the file is successfully created, it is initialized as empty.
-     * If the file already exists, a log message is recorded at the fine level.
-     * If an error occurs during file creation, a severe log message is recorded.
+     * If an error occurs during creation, an appropriate error message is logged.
      */
     private static void createFile() {
         if (inMemory) return;
@@ -49,8 +51,8 @@ public class BlacklistManager {
     }
 
     /**
-     * Saves the blacklist data to the file defined by {@link Constants#BLACKLIST_PATH}.
-     * If an error occurs while writing, a severe error message is logged.
+     * Saves the current blacklist to a JSON file.
+     * If an error occurs while writing, it is logged.
      */
     public static void saveData() {
         if (inMemory) return;
@@ -63,9 +65,9 @@ public class BlacklistManager {
     }
 
     /**
-     * Loads the blacklist data from the file defined by {@link Constants#BLACKLIST_PATH}.
+     * Loads the blacklist from the JSON file.
      * If the file does not exist, it is created with an empty blacklist.
-     * If an error occurs while reading, a severe error message is logged.
+     * If an error occurs while reading, it is logged.
      */
     public static void loadData() {
         if (inMemory) return;
@@ -87,17 +89,28 @@ public class BlacklistManager {
         }
     }
 
+    /**
+     * Enables or disables in-memory mode.
+     * When enabled, no data will be written to or read from files.
+     *
+     * @param value {@code true} to enable in-memory mode, {@code false} to use file storage.
+     */
     public static void setInMemory(boolean value) {
         inMemory = value;
     }
 
+    /**
+     * Retrieves the current blacklist as a {@link HashSet} of UUIDs.
+     *
+     * @return The blacklist.
+     */
     public static HashSet<UUID> getBlacklist() {
         return blacklist;
     }
 
     /**
      * Adds a player's UUID to the blacklist.
-     * If the UUID was not already in the blacklist, the data is saved.
+     * If the UUID was not already present, the updated data is saved to the file.
      *
      * @param uuid The UUID of the player to blacklist.
      */
@@ -109,7 +122,7 @@ public class BlacklistManager {
 
     /**
      * Removes a player's UUID from the blacklist.
-     * If the UUID was in the blacklist, the data is saved.
+     * If the UUID was in the blacklist, the updated data is saved to the file.
      *
      * @param uuid The UUID of the player to remove from the blacklist.
      */
@@ -120,9 +133,9 @@ public class BlacklistManager {
     }
 
     /**
-     * Checks if a player's UUID is in the blacklist.
+     * Checks if a given UUID is blacklisted.
      *
-     * @param uuid The UUID of the player to check.
+     * @param uuid The UUID to check.
      * @return {@code true} if the player is blacklisted, {@code false} otherwise.
      */
     public static boolean isBlacklisted(UUID uuid) {
