@@ -11,6 +11,7 @@ public class Constants {
     public final static String REDEMPTION_TOTEM_KEY = "redemption_totem";
     public final static String REDEMPTION_TOTEM_TITLE = "RedemptionTotem";
     public final static String REDEMPTION_TOTEM_LORE = "The Redemption Totem is a sacred item used to revive a fallen player";
+    public final static int REDEMPTION_TOTEM_CUSTOM_MODEL_DATA = 100001;
 
     // Redemption Inventory
     public final static String REDEMPTION_INVENTORY_TITLE = "RedemptionTotem - %d/%d";

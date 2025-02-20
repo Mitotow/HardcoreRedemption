@@ -31,6 +31,7 @@ public class RedemptionTotem extends ItemStack {
         itemMeta.setDisplayName(ChatColor.LIGHT_PURPLE + Constants.REDEMPTION_TOTEM_TITLE);
         itemMeta.setLore(Collections.singletonList(ChatColor.GRAY + Constants.REDEMPTION_TOTEM_LORE));
         itemMeta.getPersistentDataContainer().set(namespacedKey, PersistentDataType.BYTE, (byte) 1);
+        itemMeta.setCustomModelData(Constants.REDEMPTION_TOTEM_CUSTOM_MODEL_DATA);
         setItemMeta(itemMeta);
     }
 
