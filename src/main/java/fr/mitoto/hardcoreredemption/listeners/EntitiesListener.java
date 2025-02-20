@@ -6,6 +6,7 @@ import fr.mitoto.hardcoreredemption.configs.Messages;
 import fr.mitoto.hardcoreredemption.inventories.RedemptionInventory;
 import fr.mitoto.hardcoreredemption.items.RedemptionTotem;
 import fr.mitoto.hardcoreredemption.utils.BlacklistManager;
+import fr.mitoto.hardcoreredemption.utils.SoundUtils;
 import org.bukkit.Sound;
 import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
@@ -69,11 +70,7 @@ public class EntitiesListener implements Listener {
         e.setDeathMessage(String.format(Messages.DEATH_MESSAGE, player.getDisplayName()));
         BlacklistManager.addPlayerToBlacklist(player.getUniqueId());
         player.kickPlayer(Messages.KICK_MESSAGE);
-
-        // Play a global wither death sound effect for all online players
-        for (Player op : Main.getPlugin().getServer().getOnlinePlayers()) {
-            op.playSound(player.getLocation(), Sound.ENTITY_WITHER_DEATH, 0.5f, 0f);
-        }
+        SoundUtils.broadcastSound(Sound.ENTITY_WITHER_DEATH, 0.5f, 0f);
     }
 
     /**

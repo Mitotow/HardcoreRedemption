@@ -5,6 +5,7 @@ import fr.mitoto.hardcoreredemption.configs.Messages;
 import fr.mitoto.hardcoreredemption.inventories.RedemptionInventory;
 import fr.mitoto.hardcoreredemption.items.RedemptionTotem;
 import fr.mitoto.hardcoreredemption.utils.BlacklistManager;
+import fr.mitoto.hardcoreredemption.utils.SoundUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -81,7 +82,6 @@ public class RedemptionInventoryListener implements Listener {
 
         // Play sound and effect
         player.playEffect(EntityEffect.TOTEM_RESURRECT);
-        // TODO: Sound will be reworked by issue #6
-        server.getOnlinePlayers().forEach(p -> p.playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN, 0.5f, 0f));
+        SoundUtils.broadcastSound(Sound.ENTITY_WITHER_SPAWN);
     }
 }
