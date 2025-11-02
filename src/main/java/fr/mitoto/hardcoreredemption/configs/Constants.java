@@ -16,4 +16,8 @@ public class Constants {
     // Redemption Inventory
     public final static String REDEMPTION_INVENTORY_TITLE = "RedemptionTotem - %d/%d";
     public final static int MAX_HEADS_PER_INVENTORY = 21;
+
+    // Pagination Items
+    public final static String PAGINATION_NEXT = "Next";
+    public final static String PAGINATION_PREVIOUS = "Previous";
 }

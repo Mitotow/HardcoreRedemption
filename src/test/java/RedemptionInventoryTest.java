@@ -49,7 +49,9 @@ public class RedemptionInventoryTest {
             BlacklistManager.addPlayerToBlacklist(player.getUniqueId());
         }
 
-        Inventory inventory = RedemptionInventory.createInventory(server.addPlayer());
+        RedemptionInventory redemptionInventory = RedemptionInventory.getRedemptionInventory(server.addPlayer());
+        redemptionInventory.fullUpdateInventory();
+        Inventory inventory = redemptionInventory.getInventory();
         long count = Arrays.stream(inventory.getContents())
                 .filter(Objects::nonNull)
                 .filter(item -> item.getType() == Material.PLAYER_HEAD)
@@ -60,10 +62,12 @@ public class RedemptionInventoryTest {
     @Test
     public void playerInteractBorder() {
         PlayerMock player = server.addPlayer();
-        Inventory inventory = RedemptionInventory.createInventory(player);
+        RedemptionInventory redemptionInventory = RedemptionInventory.getRedemptionInventory(server.addPlayer());
+        redemptionInventory.fullUpdateInventory();
+        Inventory inventory = redemptionInventory.getInventory();
 
         int targetSlot = InventoryUtils.getItemSlot(inventory, RedemptionInventory.borderItem);
-        assertNotEquals(targetSlot, -1);
+        assertNotEquals(-1, targetSlot);
 
         player.openInventory(inventory);
         InventoryClickEvent e = player.simulateInventoryClick(player.getOpenInventory(), targetSlot);
@@ -77,7 +81,9 @@ public class RedemptionInventoryTest {
         PlayerMock player = server.addPlayer("player");
         BlacklistManager.addPlayerToBlacklist(deadPlayer.getUniqueId());
 
-        Inventory inventory = RedemptionInventory.createInventory(player);
+        RedemptionInventory redemptionInventory = RedemptionInventory.getRedemptionInventory(server.addPlayer());
+        redemptionInventory.fullUpdateInventory();
+        Inventory inventory = redemptionInventory.getInventory();
         int slot = InventoryUtils.getItemSlot(inventory, Heads.getOfflinePlayerHead(deadPlayer));
 
         player.openInventory(inventory);

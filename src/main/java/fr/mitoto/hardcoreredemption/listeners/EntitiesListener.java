@@ -109,7 +109,7 @@ public class EntitiesListener implements Listener {
         if (handItem == null) return;
 
         if (RedemptionTotem.isRedemptionTotem(handItem)) {
-            player.openInventory(RedemptionInventory.createInventory(player));
+            player.openInventory(RedemptionInventory.getRedemptionInventory(player).getInventory());
         }
     }
 

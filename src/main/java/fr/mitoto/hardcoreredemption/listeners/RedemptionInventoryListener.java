@@ -1,6 +1,7 @@
 package fr.mitoto.hardcoreredemption.listeners;
 
 import fr.mitoto.hardcoreredemption.Main;
+import fr.mitoto.hardcoreredemption.configs.Constants;
 import fr.mitoto.hardcoreredemption.configs.Messages;
 import fr.mitoto.hardcoreredemption.inventories.RedemptionInventory;
 import fr.mitoto.hardcoreredemption.items.RedemptionTotem;
@@ -12,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -22,6 +24,22 @@ import org.bukkit.inventory.meta.ItemMeta;
  * from the blacklist using the Redemption Totem.
  */
 public class RedemptionInventoryListener implements Listener {
+
+    private void handlePagination(RedemptionInventory redemptionInventory, InventoryView view, ItemStack item) {
+        ItemMeta meta = item.getItemMeta();
+        assert meta != null;
+
+        if (meta.getDisplayName().equals(Constants.PAGINATION_NEXT)) {
+            redemptionInventory.nextPage();
+            System.out.println("next");
+        } else if (meta.getDisplayName().equals(Constants.PAGINATION_PREVIOUS)) {
+            redemptionInventory.previousPage();
+        }
+
+        String test = redemptionInventory.formatInventoryTitle();
+        System.out.println(test);
+        view.setTitle(redemptionInventory.formatInventoryTitle());
+    }
 
     /**
      * Handles clicks inside the redemption inventory.
@@ -36,27 +54,36 @@ public class RedemptionInventoryListener implements Listener {
      */
     @EventHandler
     public void onInvClick(InventoryClickEvent e) {
+        Player player = (Player) e.getWhoClicked();
         Inventory inventory = e.getClickedInventory();
-        if (!RedemptionInventory.isRedemptionInventory(inventory)) return;
+
+        if (!RedemptionInventory.isRedemptionInventory(player, inventory)) return;
+        final RedemptionInventory redemptionInventory = RedemptionInventory.getRedemptionInventory((Player) e.getWhoClicked());
 
         // Cancel any modifications to the inventory
         e.setCancelled(true);
 
         ItemStack item = e.getCurrentItem();
-        if (item == null || item.getType() != Material.PLAYER_HEAD) return;
+        if (item == null) return;
+
+        if (item.getType() == Material.GREEN_BANNER) {
+            this.handlePagination(redemptionInventory, e.getView(), item);
+        } else if (item.getType() != Material.PLAYER_HEAD) {
+            e.setCancelled(true);
+            return;
+        }
 
         ItemMeta itemMeta = item.getItemMeta();
         if (itemMeta == null) return;
 
         // Get the name of the player to be revived
         String expectedName = ChatColor.stripColor(itemMeta.getDisplayName());
-        Player player = (Player) e.getWhoClicked();
         Server server = Main.getPlugin().getServer();
 
         // Attempt to retrieve the blacklisted player
         Player blacklistedPlayer = server.getPlayer(expectedName);
         if (blacklistedPlayer == null || !BlacklistManager.isBlacklisted(blacklistedPlayer.getUniqueId())) {
-            RedemptionInventory.updateInventory(inventory);
+            redemptionInventory.fullUpdateInventory();
             e.setCancelled(true);
             return;
         }
